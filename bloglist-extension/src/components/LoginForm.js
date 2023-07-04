@@ -1,19 +1,34 @@
 import { useState } from 'react';
-import PropTypes from 'prop-types';
+import { useDispatchUser, userLogin } from '../context/UserContext';
+import loginService from '../services/login';
+import { notify, useDispatchNotif } from '../context/NotifContext';
 
-const LoginForm = ({ handleLogin }) => {
+const LoginForm = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
+  const dispatchUser = useDispatchUser();
+  const dispatchNotif = useDispatchNotif();
+
   async function login(e) {
     e.preventDefault();
-    await handleLogin({ username, password });
+    try {
+      const response = await loginService.login({ username, password });
+      window.localStorage.setItem(
+        'loggedBlogAppUser',
+        JSON.stringify(response)
+      );
+      dispatchUser(userLogin(response));
+    } catch (err) {
+      console.log(err);
+      dispatchNotif(notify({
+        message: 'wrong username or password',
+        class: 'error',
+      }));
+    }
     setUsername('');
     setPassword('');
   }
-  LoginForm.propTypes = {
-    handleLogin: PropTypes.func.isRequired,
-  };
 
   return (
     <form onSubmit={login}>

@@ -1,8 +1,51 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
+import { useMutation, useQueryClient } from 'react-query';
+import blogService from '../services/blogs';
+import { notify, useDispatchNotif } from '../context/NotifContext';
+import { useUser } from '../context/UserContext';
 
-const Blog = ({ blog, handleLike, currentUser, handleDelete }) => {
+const Blog = ({ blog }) => {
   const [details, setDetails] = useState(false);
+  const dispatchNotif = useDispatchNotif();
+
+  const currentUser = useUser();
+
+  const queryClient = useQueryClient();
+
+  const likeMutation = useMutation(blogService.update, {
+    onSuccess: (newBlog) => {
+      const blogs = queryClient.getQueryData('blogs');
+      queryClient.setQueryData('blogs', blogs.map((b) =>
+        b.id !== newBlog.id ? b : { ...b, likes: newBlog.likes }
+      ));
+    },
+    onError: (error) => {
+      console.log(error);
+      dispatchNotif(notify({
+        message: 'failed to like blog',
+        class: 'error',
+      }));
+    }
+  });
+
+  const deleteMutation = useMutation(blogService.deleteBlog, {
+    onSuccess: () => {
+      const blogs = queryClient.getQueryData('blogs');
+      queryClient.setQueryData('blogs', blogs.filter((b) => b.id !== blog.id));
+      dispatchNotif(notify({
+        message: 'deletion successful',
+        class: 'success',
+      }));
+    },
+    onError: (error) => {
+      console.log(error);
+      dispatchNotif(notify({
+        message: 'deletion failed',
+        class: 'error',
+      }));
+    }
+  });
 
   const blogStyle = {
     paddingTop: 10,
@@ -16,21 +59,19 @@ const Blog = ({ blog, handleLike, currentUser, handleDelete }) => {
     setDetails(!details);
   }
 
-  async function likeBlog() {
-    await handleLike({ ...blog, likes: ++blog.likes });
+  function likeBlog() {
+    likeMutation.mutate({ ...blog, likes: blog.likes + 1 });
   }
 
-  async function removeBlog() {
+  function removeBlog() {
     if (window.confirm(`Remove ${blog.title} blog ?`)) {
-      await handleDelete(blog.id);
+      blogService.setToken(currentUser.token);
+      deleteMutation.mutate(blog.id);
     }
   }
 
   Blog.propTypes = {
     blog: PropTypes.object.isRequired,
-    currentUser: PropTypes.object.isRequired,
-    handleDelete: PropTypes.func.isRequired,
-    handleLike: PropTypes.func.isRequired,
   };
 
   return (

@@ -1,16 +1,14 @@
-import PropTypes from 'prop-types';
+import { useContext } from 'react';
+import NotifContext, { clearNotif } from '../context/NotifContext';
 
-const Notification = ({ notif, setNotification }) => {
-  Notification.propTypes = {
-    notif: PropTypes.object,
-    setNotification: PropTypes.func.isRequired,
-  };
+const Notification = () => {
+  const [notification, dispatchNotif] = useContext(NotifContext);
 
-  if (notif) {
+  if (notification) {
     setTimeout(() => {
-      setNotification(null);
-    }, 2000);
-    return <div className={notif.class}>{notif.message}</div>;
+      dispatchNotif(clearNotif());
+    }, 5000);
+    return <div className={notification.class}>{notification.message}</div>;
   } else {
     return null;
   }

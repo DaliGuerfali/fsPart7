@@ -1,13 +1,17 @@
+import { useQuery } from 'react-query';
 import Blog from './Blog';
-import PropTypes from 'prop-types';
+import blogService from '../services/blogs';
 
-const BlogList = ({ blogs, handleLike, currentUser, handleDelete }) => {
-  Blog.propTypes = {
-    blog: PropTypes.object.isRequired,
-    currentUser: PropTypes.object.isRequired,
-    handleDelete: PropTypes.func.isRequired,
-    handleLike: PropTypes.func.isRequired,
-  };
+const BlogList = () => {
+  const blogResult = useQuery('blogs', blogService.getAll, {
+    refetchOnWindowFocus: false
+  });
+
+  if(blogResult.isLoading) {
+    return <p>Loading Blogs...</p>;
+  }
+
+  const blogs = blogResult.data;
 
   return (
     <>
@@ -17,9 +21,6 @@ const BlogList = ({ blogs, handleLike, currentUser, handleDelete }) => {
           <Blog
             key={blog.id}
             blog={blog}
-            handleLike={handleLike}
-            currentUser={currentUser}
-            handleDelete={handleDelete}
           />
         ))}
     </>
