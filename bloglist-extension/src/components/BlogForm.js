@@ -4,6 +4,7 @@ import { useMutation, useQueryClient } from 'react-query';
 import { notify, useDispatchNotif } from '../context/NotifContext';
 import  { useUser } from '../context/UserContext';
 import Togglable from './Togglable';
+import { Button, Stack, TextField } from '@mui/material';
 
 
 const BlogForm = () => {
@@ -55,31 +56,30 @@ const BlogForm = () => {
   return (
     <Togglable buttonLabel="create new blog" ref={toggleRef}>
       <form onSubmit={createBlog}>
-        <div>
-          title:
-          <input
+        <Stack spacing={2} sx={{ maxWidth: 500 }}>
+          <TextField
+            variant="filled"
+            label="Title"
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             name="title"
           />
-        </div>
-        <div>
-          author:
-          <input
+          <TextField
+            variant="filled"
+            label="Author"
             value={author}
             onChange={(e) => setAuthor(e.target.value)}
             name="author"
           />
-        </div>
-        <div>
-          url:
-          <input
+          <TextField
+            variant="filled"
+            label="URL"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             name="url"
           />
-        </div>
-        <button type="submit">create</button>
+          <Button variant="contained" type="submit">create</Button>
+        </Stack>
       </form>
     </Togglable>
   );

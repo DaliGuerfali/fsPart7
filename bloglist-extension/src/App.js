@@ -7,38 +7,39 @@ import LoginView from './views/LoginView';
 import BlogsView from './views/BlogsView';
 import Navbar from './components/Navbar';
 import BlogInfo from './views/BlogInfo';
+import { Container } from '@mui/material';
 
 const App = () => {
   const [user, dispatchUser] = useContext(UserContext);
-  
+
   useEffect(() => {
     const loggedUser = window.localStorage.getItem('loggedBlogAppUser');
     loggedUser && dispatchUser(userLogin(JSON.parse(loggedUser)));
   }, []);
 
   return (
-    <>
+    <Container sx={{ fontFamily: 'roboto' }}>
       <Navbar />
       <Routes>
-        <Route path="/" element={ 
+        <Route path="/" element={
           user !== null ?
-          <BlogsView /> : 
-          <Navigate replace to="/login" />
+            <BlogsView /> :
+            <Navigate replace to="/login" />
         } />
         <Route path="/login" element={
-          user === null ? 
-          <LoginView /> : 
-          <Navigate replace to="/" />
+          user === null ?
+            <LoginView /> :
+            <Navigate replace to="/" />
         } />
-        <Route path="/users" element={ 
+        <Route path="/users" element={
           user !== null ?
-          <UsersView /> :
-          <Navigate replace to="/login" />
+            <UsersView /> :
+            <Navigate replace to="/login" />
         } />
         <Route path="/users/:id" element={<UserInfo /> } />
         <Route path="/blogs/:id" element={<BlogInfo />} />
       </Routes>
-      </>
+    </Container>
   );
 };
 
