@@ -1,48 +1,45 @@
 import { useEffect, useContext } from 'react';
-import blogService from './services/blogs';
-import BlogForm from './components/BlogForm';
-import BlogList from './components/BlogList';
-import LoginForm from './components/LoginForm';
-import Notification from './components/Notification';
-import UserContext, { userLogin, userLogout } from './context/UserContext';
+import UserContext, { userLogin } from './context/UserContext';
+import UsersView from './views/UsersView';
+import { Route, Routes, Navigate } from 'react-router-dom';
+import UserInfo from './views/UserInfo';
+import LoginView from './views/LoginView';
+import BlogsView from './views/BlogsView';
+import Navbar from './components/Navbar';
+import BlogInfo from './views/BlogInfo';
 
 const App = () => {
   const [user, dispatchUser] = useContext(UserContext);
-
+  
   useEffect(() => {
     const loggedUser = window.localStorage.getItem('loggedBlogAppUser');
     loggedUser && dispatchUser(userLogin(JSON.parse(loggedUser)));
   }, []);
 
-  function handleLogout() {
-    window.localStorage.removeItem('loggedBlogAppUser');
-    dispatchUser(userLogout());
-    blogService.setToken(null);
-  }
-
-  if (user === null) {
-    return (
-      <div>
-        <h2>Log in to application</h2>
-        <Notification />
-        <LoginForm />
-      </div>
-    );
-  } else {
-    return (
-      <div>
-        <h2>blogs</h2>
-        <Notification />
-        <p>
-          {user.name} logged in
-          <button onClick={handleLogout}>logout</button>
-        </p>
-        <h2>Create New</h2>
-        <BlogForm />
-        <BlogList />
-      </div>
-    );
-  }
+  return (
+    <>
+      <Navbar />
+      <Routes>
+        <Route path="/" element={ 
+          user !== null ?
+          <BlogsView /> : 
+          <Navigate replace to="/login" />
+        } />
+        <Route path="/login" element={
+          user === null ? 
+          <LoginView /> : 
+          <Navigate replace to="/" />
+        } />
+        <Route path="/users" element={ 
+          user !== null ?
+          <UsersView /> :
+          <Navigate replace to="/login" />
+        } />
+        <Route path="/users/:id" element={<UserInfo /> } />
+        <Route path="/blogs/:id" element={<BlogInfo />} />
+      </Routes>
+      </>
+  );
 };
 
 export default App;

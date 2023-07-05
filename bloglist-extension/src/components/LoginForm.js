@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useDispatchUser, userLogin } from '../context/UserContext';
 import loginService from '../services/login';
 import { notify, useDispatchNotif } from '../context/NotifContext';
+import { useNavigate } from 'react-router-dom';
 
 const LoginForm = () => {
   const [username, setUsername] = useState('');
@@ -9,6 +10,8 @@ const LoginForm = () => {
 
   const dispatchUser = useDispatchUser();
   const dispatchNotif = useDispatchNotif();
+
+  const navigate = useNavigate();
 
   async function login(e) {
     e.preventDefault();
@@ -19,6 +22,7 @@ const LoginForm = () => {
         JSON.stringify(response)
       );
       dispatchUser(userLogin(response));
+      navigate('/');
     } catch (err) {
       console.log(err);
       dispatchNotif(notify({
